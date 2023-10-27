@@ -32,18 +32,20 @@ const io = new Server(server, {
 })
 
 io.on('connection', async (socket) => {
-  console.log(socket.id)
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
 
-  await page.goto('https://google.com')
-  await page.setViewport({ width: 600, height: 400 })
+  await page.goto('https://www.youtube.com/watch?v=3tfnIrEBoXA')
+  await page.setViewport({ width: 800, height: 600 })
   await page.keyboard.press('Space')
+  const data = await page.screenshot({
+    optimizeForSpeed: true
+  })
+  socket.emit('image', data)
 
-  const intervalId = setInterval(() => {
+  socket.on('getimg', () => {
     page.screenshot({
-      optimizeForSpeed: true,
-      type: 'jpeg'
+      optimizeForSpeed: true
     })
       .then(data => {
         socket.emit('image', data)
@@ -51,11 +53,5 @@ io.on('connection', async (socket) => {
       .catch(err => {
         console.log(err)
       })
-  }, 50)
-
-  socket.on('disconnect', async () => {
-    clearInterval(intervalId)
-    await page.close()
-    await browser.close()
   })
 })
