@@ -94,6 +94,11 @@ function App() {
     setStart(true)
   }
 
+  const handleSessionEnd = () => {
+    setStart(false)
+    socket.emit('endsession')
+  }
+
   return (
     <>
       <div className="w-full min-h-screen flex flex-col items-center justify-center bg-gray-200">
@@ -111,6 +116,7 @@ function App() {
         </div>
         }
         <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} className={start ? "" : "hidden"}></canvas>
+        {start && <button className="m-4 bg-blue-400 p-2 text-white cursor-pointer rounded-md" onClick={handleSessionEnd}>End session</button>}
       </div>
     </>
   )
