@@ -1,5 +1,5 @@
 import { Server, type Socket } from 'socket.io'
-import puppeteer, { type Page } from 'puppeteer'
+import puppeteer, { type Browser, type Page } from 'puppeteer'
 
 const PORT = 8080
 const WIDTH = 800
@@ -26,11 +26,15 @@ const checkInbounds = (x: number, y: number): boolean => {
 }
 
 io.on('connection', async (socket) => {
-  const browser = await puppeteer.launch()
-  const page = await browser.newPage()
+  let browser: Browser
+  let page: Page
 
-  socket.on('url', async (url) => {
-    // await page.goto('https://www.youtube.com/watch?v=3tfnIrEBoXA')
+  socket.on('url', async (url, tor) => {
+    browser = await puppeteer.launch({
+      args: [(tor === true) ? '--proxy-server=socks5://127.0.0.1:9050' : '']
+    })
+    page = await browser.newPage()
+
     await page.goto(url)
     await page.setViewport({ width: WIDTH, height: HEIGHT })
     await page.keyboard.press('Space')
