@@ -1,33 +1,11 @@
-import express from 'express'
-import dotenv from 'dotenv'
-import cors from 'cors'
-import morgan from 'morgan'
-import http from 'http'
-import errorHandler from './middleware/error'
 import { Server, type Socket } from 'socket.io'
 import puppeteer, { type Page } from 'puppeteer'
 
+const PORT = 8080
 const WIDTH = 800
 const HEIGHT = 600
 
-dotenv.config()
-const logger = morgan('dev')
-
-const app = express()
-
-app.use(cors())
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-
-app.use(logger)
-app.use(errorHandler)
-
-app.get('/', (req, res) => {
-  res.json('Express + TypeScript Server')
-})
-
-export const server = http.createServer(app)
-const io = new Server(server, {
+const io = new Server({
   cors: {
     origin: '*',
     methods: ['GET', 'POST']
@@ -86,3 +64,6 @@ io.on('connection', async (socket) => {
     await page.keyboard.up(code)
   })
 })
+
+io.listen(PORT)
+console.log(`[server]: Server is running at http://localhost:${PORT}`)
