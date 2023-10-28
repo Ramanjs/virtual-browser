@@ -7,6 +7,7 @@ function App() {
   const canvasRef = useRef(null)
   const [start, setStart] = useState(false)
   const [connected, setConnected] = useState(socket.connected)
+  const [tor, setTor] = useState(false)
   const [url, setUrl] = useState("")
 
   const WIDTH = 800;
@@ -38,7 +39,7 @@ function App() {
     const ctx = canvas.getContext('2d')
     let imageUrl = ''
 
-    socket.emit('url', url)
+    socket.emit('url', url, tor)
 
     document.onclick = (e) => handleMouseClick(canvas, e)
     document.onwheel = (e) => handleMouseWheel(canvas, e)
@@ -98,11 +99,15 @@ function App() {
       <div className="w-full min-h-screen flex flex-col items-center justify-center bg-gray-200">
         {!start &&
         <div className="bg-white p-8 rounded-lg flex flex-col items-center">
-          <h1 className="mb-4">Start a virtual browsing session</h1>
+          <h1 className="mb-8 text-2xl">Start a virtual browsing session</h1>
           <form className="flex space-x-4" onSubmit={handleSubmit}>
             <input type="url" className="border-2" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://google.com" required/>
             <input type="submit" className="bg-blue-400 p-4 text-white cursor-pointer" value={"Start!"}/>
           </form>
+          <div className="flex space-x-2 mt-2">
+            <input type="checkbox" name="tor" onChange={(e) => setTor(e.target.checked)}/>
+            <label htmlFor="tor">Use tor network</label>
+          </div>
         </div>
         }
         <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} className={start ? "" : "hidden"}></canvas>
