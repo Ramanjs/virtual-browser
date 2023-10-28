@@ -43,6 +43,10 @@ async function emitScreenshot (socket: Socket, page: Page): Promise<void> {
   socket.emit('image', data)
 }
 
+const checkInbounds = (x: number, y: number): boolean => {
+  return (x >= 0 && x <= WIDTH) && (y >= 0 && y <= HEIGHT)
+}
+
 io.on('connection', async (socket) => {
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
@@ -60,17 +64,25 @@ io.on('connection', async (socket) => {
   })
 
   socket.on('click', async (x, y) => {
-    if ((x >= 0 && x <= WIDTH) && (y >= 0 && y <= HEIGHT)) {
+    if (checkInbounds(x, y)) {
       await page.mouse.click(x, y)
     }
   })
 
   socket.on('wheel', async (x, y, deltaX, deltaY) => {
-    if ((x >= 0 && x <= WIDTH) && (y >= 0 && y <= HEIGHT)) {
+    if (checkInbounds(x, y)) {
       await page.mouse.wheel({
         deltaX,
         deltaY
       })
     }
+  })
+
+  socket.on('keydown', async (code) => {
+    await page.keyboard.down(code)
+  })
+
+  socket.on('keyup', async (code) => {
+    await page.keyboard.up(code)
   })
 })
