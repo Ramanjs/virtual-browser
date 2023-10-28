@@ -7,6 +7,9 @@ import errorHandler from './middleware/error'
 import { Server, type Socket } from 'socket.io'
 import puppeteer, { type Page } from 'puppeteer'
 
+const WIDTH = 800
+const HEIGHT = 600
+
 dotenv.config()
 const logger = morgan('dev')
 
@@ -47,12 +50,18 @@ io.on('connection', async (socket) => {
   socket.on('url', async (url) => {
     // await page.goto('https://www.youtube.com/watch?v=3tfnIrEBoXA')
     await page.goto(url)
-    await page.setViewport({ width: 800, height: 600 })
+    await page.setViewport({ width: WIDTH, height: HEIGHT })
     await page.keyboard.press('Space')
     await emitScreenshot(socket, page)
   })
 
   socket.on('getimg', async () => {
     await emitScreenshot(socket, page)
+  })
+
+  socket.on('click', async (x, y) => {
+    if ((x >= 0 && x <= WIDTH) && (y >= 0 && y <= HEIGHT)) {
+      await page.mouse.click(x, y)
+    }
   })
 })
