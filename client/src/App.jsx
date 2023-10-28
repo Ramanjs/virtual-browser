@@ -1,37 +1,57 @@
 import {useEffect, useRef, useState} from "react";
 import {io} from "socket.io-client";
 
+const socket = io("http://localhost:8080")
+
 function App() {
   const canvasRef = useRef(null)
   const [start, setStart] = useState(false)
+  const [connected, setConnected] = useState(socket.connected)
   const [url, setUrl] = useState("")
 
   const WIDTH = 800;
   const HEIGHT = 600;
 
   useEffect(() => {
+    socket.on('connect', () => {
+      console.log("connected", socket.id)
+      setConnected(true);
+    })
+
+    socket.on('disconnect', () => {
+      console.log("disconnected", socket.id)
+      setConnected(false);
+    })
+
+    return () => {
+      console.log("teardown", socket.id)
+      socket.off('connect');
+      socket.off('disconnect');
+    }
+  })
+
+  useEffect(() => {
     if (!start) return
+    if (!connected) return
 
     const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
     let imageUrl = ''
 
-    const socket = io("http://localhost:8080")
+    socket.emit('url', url)
 
-    socket.on('connect', () => {
-
-      socket.on('image', (data) => {
-        URL.revokeObjectURL(imageUrl)
-        let image = new Image()
-        imageUrl = URL.createObjectURL(new Blob([data])) 
-        image.src = imageUrl
-        image.onload = () => {
-          ctx.drawImage(image, 0, 0)
-          socket.emit('getimg')
-        }
-      })
+    socket.on('image', (data) => {
+      URL.revokeObjectURL(imageUrl)
+      let image = new Image()
+      imageUrl = URL.createObjectURL(new Blob([data])) 
+      image.src = imageUrl
+      image.onload = () => {
+        ctx.drawImage(image, 0, 0)
+        socket.emit('getimg')
+      }
     })
-  }, [start])
+
+  }, [start, url, connected])
 
   const handleSubmit = (e) => {
     e.preventDefault()
