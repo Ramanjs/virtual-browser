@@ -13,10 +13,15 @@ const io = new Server({
 })
 
 async function emitScreenshot (socket: Socket, page: Page): Promise<void> {
-  const data = await page.screenshot({
-    optimizeForSpeed: true
-  })
-  socket.emit('image', data)
+  try {
+    if (page == null || page.isClosed()) { return }
+    const data = await page.screenshot({
+      optimizeForSpeed: true
+    })
+    socket.emit('image', data)
+  } catch (err) {
+    console.log(err)
+  }
 }
 
 const checkInbounds = (x: number, y: number): boolean => {
@@ -35,7 +40,6 @@ io.on('connection', async (socket) => {
 
     await page.goto(url)
     await page.setViewport({ width: WIDTH, height: HEIGHT })
-    await page.keyboard.press('Space')
     await emitScreenshot(socket, page)
   })
 
@@ -45,25 +49,50 @@ io.on('connection', async (socket) => {
 
   socket.on('click', async (x, y) => {
     if (checkInbounds(x, y)) {
-      await page.mouse.click(x, y)
+      try {
+        if (page == null || page.isClosed()) { return }
+        await page.mouse.click(x, y)
+      } catch (err) {
+        console.log(err)
+      }
     }
   })
 
   socket.on('wheel', async (x, y, deltaX, deltaY) => {
     if (checkInbounds(x, y)) {
-      await page.mouse.wheel({
-        deltaX,
-        deltaY
-      })
+      try {
+        if (page == null || page.isClosed()) { return }
+        await page.mouse.wheel({
+          deltaX,
+          deltaY
+        })
+      } catch (err) {
+        console.log(err)
+      }
     }
   })
 
   socket.on('keydown', async (code) => {
-    await page.keyboard.down(code)
+    try {
+      if (page == null || page.isClosed()) { return }
+      await page.keyboard.down(code)
+    } catch (err) {
+      console.log(err)
+    }
   })
 
   socket.on('keyup', async (code) => {
-    await page.keyboard.up(code)
+    try {
+      if (page == null || page.isClosed()) { return }
+      await page.keyboard.up(code)
+    } catch (err) {
+      console.log(err)
+    }
+  })
+
+  socket.on('endsession', async () => {
+    await page.close()
+    await browser.close()
   })
 })
 
