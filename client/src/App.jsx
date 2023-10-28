@@ -40,6 +40,8 @@ function App() {
 
     socket.emit('url', url)
 
+    document.onclick = (e) => handleMouseClick(canvas, e)
+
     socket.on('image', (data) => {
       URL.revokeObjectURL(imageUrl)
       let image = new Image()
@@ -52,6 +54,14 @@ function App() {
     })
 
   }, [start, url, connected])
+
+  const handleMouseClick = (canvas, e) => {
+    let rect = canvas.getBoundingClientRect()
+    let x = e.clientX - rect.left
+    let y = e.clientY - rect.top
+
+    socket.emit('click', x, y)
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
