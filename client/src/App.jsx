@@ -41,6 +41,7 @@ function App() {
     socket.emit('url', url)
 
     document.onclick = (e) => handleMouseClick(canvas, e)
+    document.onwheel = (e) => handleMouseWheel(canvas, e)
 
     socket.on('image', (data) => {
       URL.revokeObjectURL(imageUrl)
@@ -55,12 +56,24 @@ function App() {
 
   }, [start, url, connected])
 
-  const handleMouseClick = (canvas, e) => {
+  const getMousePos = (canvas, e) => {
     let rect = canvas.getBoundingClientRect()
     let x = e.clientX - rect.left
     let y = e.clientY - rect.top
 
+    return {x, y}
+  }
+
+  const handleMouseClick = (canvas, e) => {
+    const {x, y} = getMousePos(canvas, e)
     socket.emit('click', x, y)
+  }
+
+  const handleMouseWheel = (canvas, e) => {
+    const {x, y} = getMousePos(canvas, e)
+    const deltaX = e.deltaX
+    const deltaY = e.deltaY
+    socket.emit('wheel', x, y, deltaX, deltaY)
   }
 
   const handleSubmit = (e) => {
