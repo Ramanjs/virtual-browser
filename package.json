@@ -1,0 +1,27 @@
+{
+  "name": "virtual-browser",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "postinstall": "cd client && npm install && cd ../server && npm install",
+    "frontend": "npm run dev --prefix client",
+    "backend": "npm run dev --prefix server",
+    "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ramanjs/virtual-browser.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ramanjs/virtual-browser/issues"
+  },
+  "homepage": "https://github.com/Ramanjs/virtual-browser#readme",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
