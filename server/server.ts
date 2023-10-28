@@ -4,8 +4,8 @@ import cors from 'cors'
 import morgan from 'morgan'
 import http from 'http'
 import errorHandler from './middleware/error'
-import { Server } from 'socket.io'
-import puppeteer from 'puppeteer'
+import { Server, type Socket } from 'socket.io'
+import puppeteer, { type Page } from 'puppeteer'
 
 dotenv.config()
 const logger = morgan('dev')
@@ -31,6 +31,13 @@ const io = new Server(server, {
   }
 })
 
+async function emitScreenshot (socket: Socket, page: Page): Promise<void> {
+  const data = await page.screenshot({
+    optimizeForSpeed: true
+  })
+  socket.emit('image', data)
+}
+
 io.on('connection', async (socket) => {
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
@@ -40,16 +47,10 @@ io.on('connection', async (socket) => {
     await page.goto(url)
     await page.setViewport({ width: 800, height: 600 })
     await page.keyboard.press('Space')
-    const data = await page.screenshot({
-      optimizeForSpeed: true
-    })
-    socket.emit('image', data)
+    await emitScreenshot(socket, page)
   })
 
   socket.on('getimg', async () => {
-    const data = await page.screenshot({
-      optimizeForSpeed: true
-    })
-    socket.emit('image', data)
+    await emitScreenshot(socket, page)
   })
 })
