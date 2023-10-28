@@ -14,9 +14,7 @@ const io = new Server({
 
 async function emitScreenshot (socket: Socket, page: Page): Promise<void> {
   const data = await page.screenshot({
-    optimizeForSpeed: true,
-    type: 'jpeg',
-    quality: 10
+    optimizeForSpeed: true
   })
   socket.emit('image', data)
 }
