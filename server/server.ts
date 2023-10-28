@@ -35,23 +35,21 @@ io.on('connection', async (socket) => {
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
 
-  await page.goto('https://www.youtube.com/watch?v=3tfnIrEBoXA')
-  await page.setViewport({ width: 800, height: 600 })
-  await page.keyboard.press('Space')
-  const data = await page.screenshot({
-    optimizeForSpeed: true
-  })
-  socket.emit('image', data)
-
-  socket.on('getimg', () => {
-    page.screenshot({
+  socket.on('url', async (url) => {
+    // await page.goto('https://www.youtube.com/watch?v=3tfnIrEBoXA')
+    await page.goto(url)
+    await page.setViewport({ width: 800, height: 600 })
+    await page.keyboard.press('Space')
+    const data = await page.screenshot({
       optimizeForSpeed: true
     })
-      .then(data => {
-        socket.emit('image', data)
-      })
-      .catch(err => {
-        console.log(err)
-      })
+    socket.emit('image', data)
+  })
+
+  socket.on('getimg', async () => {
+    const data = await page.screenshot({
+      optimizeForSpeed: true
+    })
+    socket.emit('image', data)
   })
 })
