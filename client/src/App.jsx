@@ -42,6 +42,8 @@ function App() {
 
     document.onclick = (e) => handleMouseClick(canvas, e)
     document.onwheel = (e) => handleMouseWheel(canvas, e)
+    document.onkeydown = handleKeydown
+    document.onkeyup = handleKeyup
 
     socket.on('image', (data) => {
       URL.revokeObjectURL(imageUrl)
@@ -76,6 +78,16 @@ function App() {
     socket.emit('wheel', x, y, deltaX, deltaY)
   }
 
+  const handleKeydown = (e) => {
+    const code = e.code
+    socket.emit('keydown', code)
+  }
+
+  const handleKeyup = (e) => {
+    const code = e.code
+    socket.emit('keyup', code)
+  }
+  
   const handleSubmit = (e) => {
     e.preventDefault()
     setStart(true)
