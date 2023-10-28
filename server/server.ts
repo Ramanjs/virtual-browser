@@ -64,4 +64,13 @@ io.on('connection', async (socket) => {
       await page.mouse.click(x, y)
     }
   })
+
+  socket.on('wheel', async (x, y, deltaX, deltaY) => {
+    if ((x >= 0 && x <= WIDTH) && (y >= 0 && y <= HEIGHT)) {
+      await page.mouse.wheel({
+        deltaX,
+        deltaY
+      })
+    }
+  })
 })
