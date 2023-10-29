@@ -2,6 +2,8 @@
 
 This project is a virtual browsing environment developed in JavaScript, allowing users to emulate a browser in a website.
 
+![Tor demo](demo.gif)
+
 ## Installation
 
 Clone the repository:
